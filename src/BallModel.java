@@ -65,8 +65,7 @@ public class BallModel implements IBouncingBallsModel {
 			b.setY(b.getY()+b.getVy()*deltaT);
 			b.setX(b.getX()+b.getVx()*deltaT);
 			
-			
-			old = b;
+
 		}
 		
 		thisTick = true;
