@@ -6,7 +6,6 @@ public class BallModel implements IBouncingBallsModel {
 
 	private final double areaWidth;
 	private final double areaHeight;
-	private Ball b1,b2;
 	private Ball[] balls;
 	private final double g;
 	boolean thisTick = true;
@@ -14,32 +13,42 @@ public class BallModel implements IBouncingBallsModel {
 	public BallModel(double width, double height) {
 		this.areaWidth = width;
 		this.areaHeight = height;
-		b1 = new Ball(1,1,1,3);
-		b2 = new Ball(2,8,10,10);
+
 		balls = new Ball[2];
-		balls[0] = b1;
-		balls[1] = b2;
+		balls[0] = new Ball(1,1,1,3);
+		balls[1] = new Ball(2,8,10,10);
+		//balls[2] = new Ball(1.3,2.5,7,7);
 		this.g = -9.82;
 	}
 
 	@Override
 	public void tick(double deltaT) {
-				
-		if(isCollision(b1,b2)){
-			System.out.println(b1.getWeight()*b1.getVy()+
-					b2.getWeight()*b2.getVy()+
-					b1.getWeight()*b1.getVx()+
-					b2.getWeight()*b2.getVx());
-			resolveCollision(b1,b2);
-			System.out.println(b1.getWeight()*b1.getVy()+
-					b2.getWeight()*b2.getVy()+
-					b1.getWeight()*b1.getVx()+
-					b2.getWeight()*b2.getVx());
-			thisTick = false;
+		
+		
+		
+		for (int i = 0; i < balls.length; i++)  
+		{  
+		    for (int j = i + 1; j < balls.length; j++)  
+		    {  
+		        if (balls[i].isColliding(balls[j])){
+		        	System.out.println(balls[j].getMass()*balls[j].getVy()+
+						balls[i].getMass()*balls[i].getVy()+
+						balls[j].getMass()*balls[j].getVx()+
+						balls[i].getMass()*balls[i].getVx());
+		            resolveCollision(balls[i],balls[j]);
+					System.out.println(balls[j].getMass()*balls[j].getVy()+
+							balls[i].getMass()*balls[i].getVy()+
+							balls[j].getMass()*balls[j].getVx()+
+							balls[i].getMass()*balls[i].getVx());
+					thisTick = false;
+		        }
+		    }
 		}
+				
+		//old = null;
 		
 		for(Ball b : balls){
-			
+						
 			if (b.getX() < b.getR() || b.getX() > areaWidth - b.getR()) {
 				b.setVx(-1*b.getVx());
 				thisTick = false;
@@ -57,8 +66,7 @@ public class BallModel implements IBouncingBallsModel {
 			b.setX(b.getX()+b.getVx()*deltaT);
 			
 			
-			
-			//System.out.println(b.getVy());
+			old = b;
 		}
 		
 		thisTick = true;
@@ -66,62 +74,46 @@ public class BallModel implements IBouncingBallsModel {
 
 	}
 	
-	private boolean isCollision(Ball b1, Ball b2){
-		return (Math.sqrt(
-				Math.pow((b1.getX()-b2.getX()),2)+Math.pow((b1.getY()-b2.getY()),2)) 
-					<= b1.getR()+b2.getR());
-	}
 	
 	private void resolveCollision(Ball b1, Ball b2){
-		double   dx = b1.getX() - b2.getX(), dy = b1.getY() - b2.getY();
-	    double   d = Math.sqrt(dx*dx + dy*dy);
-	    double   vp1, vp2, vx1, vx2, vy1, vy2;
+		double dx = b1.getX() - b2.getX();
+		double dy = b1.getY() - b2.getY();
+	    double d = Math.sqrt(dx*dx + dy*dy);
+	    double vx1, vx2, vy1, vy2;
+	    double va1, va2, vb1, vb2;
+	    double r,m, vP1, vP2;
+	    double ax = dx / d, ay = dy / d; // Enhetsvektorer
+	    
 	    vx1 = b1.getVx();
 	    vx2 = b2.getVx();
 	    vy1 = b1.getVy();
 	    vy2 = b2.getVy();
-	    vp1 = vx1 * dx / d + vy1 * dy / d;
-	    vp2 = vx2 * dx / d + vy2 * dy / d;
 
-	//  Unit vector in the direction of the collision.
-	    double   ax = dx / d, ay = dy / d;
-
-	//  Projection of the velocities in these axes.
-	    double   va1 = vx1 * ax + vy1 * ay, vb1 = -vx1 * ay + vy1 * ax;
-	    double   va2 = vx2 * ax + vy2 * ay, vb2 = -vx2 * ay + vy2 * ax;
-	    double m = b1.getWeight()*va1 + b2.getWeight()*va2;
-	    double r = -(va2-va1);
-	    
-	//  New velocities in these axes (after collision);
-	    //double   vaP1 = va1 + (va2 - va1) / (b1.getWeight() / b2.getWeight());
-	    //double   vaP2 = va2 + (va1 - va2) / (b2.getWeight() / b1.getWeight());
-	    //double vaP1 = (m-b2.getWeight()*((r*b1.getWeight()+m)/(b1.getWeight()+b2.getWeight()))/b1.getWeight());
-	    //double vaP2 = (r*b1.getWeight()+m)/(b1.getWeight()+b2.getWeight());
-
-	    double vaP1 = (m-b2.getWeight()*r)/(b1.getWeight()+b2.getWeight());
-	    double vaP2 = (m-b2.getWeight()*r)/(b1.getWeight()+b2.getWeight()) +r;
+		//Projicera hastigheten
+	    va1 = vx1 * ax + vy1 * ay; 
+	    va2 = vx2 * ax + vy2 * ay; 
+	    vb1 = -vx1 * ay + vy1 * ax;
+	    vb2 = -vx2 * ay + vy2 * ax;
+	     
+		//Beräkna ny hastighet
+	    m = b1.getMass()*va1 + b2.getMass()*va2;
+	    r = -(va2-va1);
+	    vP1 = (m-b2.getMass()*r)/(b1.getMass()+b2.getMass());
+	    vP2 = (m-b2.getMass()*r)/(b1.getMass()+b2.getMass()) +r;
 	    
 	    
-	//  Undo the projections.
-	    vx1 = vaP1 * ax - vb1 * ay; 
-	    vy1 = vaP1 * ay + vb1 * ax; // new vx,vy for ball 1 after collision.
-	    vx2 = vaP2 * ax - vb2 * ay; 
-	    vy2 = vaP2 * ay + vb2 * ax; // new vx,vy for ball 2 after collision.
+	    //"Snurra" tillbaka
+	    vx1 = vP1 * ax - vb1 * ay; 
+	    vy1 = vP1 * ay + vb1 * ax;
+	    vx2 = vP2 * ax - vb2 * ay; 
+	    vy2 = vP2 * ay + vb2 * ax;
 
 	    b1.setVx(vx1);
 	    b1.setVy(vy1);
 	    b2.setVx(vx2);
 	    b2.setVy(vy2);
+	    
 	  
-	}
-	
-	
-	private double getSpeedAngle(Ball b){
-		return Math.atan2(b.getVy(),b.getVx());
-	}
-	
-	private double getCollisionAngle(Ball b1, Ball b2){
-		return Math.atan2((b1.getY()-b2.getY()),(b1.getX()-b2.getX()));
 	}
 	
 	

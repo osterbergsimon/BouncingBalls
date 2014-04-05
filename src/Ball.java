@@ -1,12 +1,12 @@
 
 public class Ball {
 	
-	private final double weight, r;
+	private final double mass, r;
 	private double x, y, vx, vy, ax, ay;
 
 	
-	public Ball(double radius, double weight, double x, double y){
-		this.weight = weight;
+	public Ball(double radius, double mass, double x, double y){
+		this.mass = mass;
 		this.x = x;
 		this.y = y;
 		this.vx = 2.3;
@@ -79,8 +79,14 @@ public class Ball {
 		return r;
 	}
 
-	public double getWeight() {
-		return weight;
+	public double getMass() {
+		return mass;
+	}
+	
+	public boolean isColliding(Ball b){
+		return (Math.sqrt(
+				Math.pow((x-b.getX()),2)+Math.pow((y-b.getY()),2)) 
+					<= r+b.getR());
 	}
 	
 
