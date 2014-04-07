@@ -14,10 +14,10 @@ public class BallModel implements IBouncingBallsModel {
 		this.areaWidth = width;
 		this.areaHeight = height;
 
-		balls = new Ball[2];
+		balls = new Ball[3];
 		balls[0] = new Ball(1,1,1,3);
 		balls[1] = new Ball(2,8,10,10);
-		//balls[2] = new Ball(1.3,2.5,7,7);
+		balls[2] = new Ball(1.3,2.5,7,7);
 		this.g = -9.82;
 	}
 
@@ -87,6 +87,7 @@ public class BallModel implements IBouncingBallsModel {
 	    vx2 = b2.getVx();
 	    vy1 = b1.getVy();
 	    vy2 = b2.getVy();
+	    
 
 		//Projicera hastigheten
 	    va1 = vx1 * ax + vy1 * ay; 
@@ -94,6 +95,8 @@ public class BallModel implements IBouncingBallsModel {
 	    vb1 = -vx1 * ay + vy1 * ax;
 	    vb2 = -vx2 * ay + vy2 * ax;
 	     
+	    if(va1-va2 < 0){
+	    
 		//Beräkna ny hastighet
 	    m = b1.getMass()*va1 + b2.getMass()*va2;
 	    r = -(va2-va1);
@@ -111,7 +114,7 @@ public class BallModel implements IBouncingBallsModel {
 	    b1.setVy(vy1);
 	    b2.setVx(vx2);
 	    b2.setVy(vy2);
-	    
+	    }
 	  
 	}
 	
